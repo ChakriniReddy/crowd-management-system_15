@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVS Control Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="dark-mode">
+
+    <!-- Top Navbar -->
+    <nav class="top-nav">
+        <div class="nav-brand">
+            <h1>SecureView <span>System</span></h1>
+        </div>
+        <div class="nav-status">
+            <span class="pulse-dot"></span>
+            LIVE MONITORING MODE – EVENT: COLLEGE FEST 2026
+        </div>
+        <div class="nav-clock" id="system-clock" style="font-family: 'Orbitron', monospace; color: var(--accent); font-size: 1.1rem; letter-spacing: 2px;">
+            00:00:00
+        </div>
+        <div class="nav-user">
+            <span class="role-badge">ROLE: {{ role }}</span>
+            <a href="/architecture" class="btn-nav">Architecture</a>
+            <a href="/logout" class="btn-nav logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="main-layout">
+        <!-- Sidebar Controls -->
+        <aside class="sidebar-controls">
+            <h2>System Controls</h2>
+            
+            <div class="control-group">
+                <label>Tracking Engine</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="toggle-detection" checked>
+                    <span class="slider"></span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Video Source</label>
+                <select id="camera-source" onchange="document.getElementById('custom-video-input').style.display = this.value === 'custom' ? 'block' : 'none'">
+                    <option value="test_video1.mp4.mp4">Camera 1 (Main Hall)</option>
+                    <option value="test_video.mp4.mp4">Camera 2 (Exit Zone)</option>
+                    <option value="0">Local Webcam</option>
+                    <option value="demo">Demo Mode (Simulated)</option>
+                    <option value="custom">Other (Custom Path)</option>
+                </select>
+                <input type="text" id="custom-video-input" placeholder="e.g. my_video.mp4" style="display: none; margin-top: 8px; width: 100%; padding: 0.5rem; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); color: var(--text-primary); border-radius: 4px;">
+            </div>
+
+            <h3>Simulation Controls</h3>
+            <div class="sim-buttons">
+                <button class="btn-sim" onclick="controlSimulation('play')">▶ Play</button>
+                <button class="btn-sim" onclick="controlSimulation('pause')">⏸ Pause</button>
+                <button class="btn-sim reset" onclick="controlSimulation('reset')">🔄 Reset</button>
+            </div>
+
+            <div class="control-group">
+                <label>Overcrowd Threshold</label>
+                <span id="threshold-val" class="slider-val">15</span>
+                <input type="range" id="crowd-threshold" min="5" max="50" value="15">
+            </div>
+
+            <h3>Overlays & Alerts</h3>
+            <div class="control-group">
+                <label>Show Density Heatmap</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="toggle-heatmap">
+                    <span class="slider"></span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Show Tracking Grid</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="toggle-grid" checked>
+                    <span class="slider"></span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Critical Sound Alerts</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="toggle-sound" checked>
+                    <span class="slider"></span>
+                </div>
+            </div>
+            
+            <button class="btn-apply" id="apply-settings">Apply Parameters</button>
+        </aside>
+
+        <!-- Main Dashboard View -->
+        <main class="dashboard-content">
+            <div class="top-row">
+                <!-- Video Section -->
+                <div class="card video-panel">
+                    <div class="card-header">
+                        <h2>LIVE SURVEILLANCE FEED <span>[FRAME RATE: <span id="fps-counter">0</span>]</span></h2>
+                    </div>
+                    
+                    <div class="camera-tabs">
+                        <button class="cam-tab active" onclick="switchTab(this, 'test_video1.mp4.mp4')">CAM 1 - Gate A</button>
+                        <button class="cam-tab" onclick="switchTab(this, 'test_video.mp4.mp4')">CAM 2 - Exit</button>
+                        <button class="cam-tab" onclick="switchTab(this, 'demo')">SIM - Demo Zone</button>
+                    </div>
+
+                    <div class="video-container" id="video-feed-container">
+                        <img src="{{ url_for('video_feed') }}" alt="Surveillance Feed" id="video-feed-img">
+                    </div>
+                </div>
+
+                <!-- Live Metrics & Chart -->
+                <div class="side-panels">
+                    <div class="card analytics-panel">
+                        <h2>AI Estimated Forecast</h2>
+                        <div class="metrics-counters">
+                            <div class="metric-box">
+                                <span>Current Count</span>
+                                <h3 id="total-count">0</h3>
+                            </div>
+                            <div class="metric-box warning-box">
+                                <span>Forecast (+30s)</span>
+                                <h3 id="predicted-count">0</h3>
+                            </div>
+                        </div>
+                        <div class="chart-wrapper">
+                            <div class="chart-controls" style="margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                                <label style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase;">Chart View:</label>
+                                <select id="chart-view-selector" style="background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); color: var(--text-primary); border-radius: 4px; padding: 2px 5px; font-size: 0.8rem;">
+                                    <option value="Global">Global Overview</option>
+                                    <option value="A1">Grid A1</option>
+                                    <option value="A2">Grid A2</option>
+                                    <option value="A3">Grid A3</option>
+                                    <option value="A4">Grid A4</option>
+                                    <option value="B1">Grid B1</option>
+                                    <option value="B2">Grid B2</option>
+                                    <option value="B3">Grid B3</option>
+                                    <option value="B4">Grid B4</option>
+                                    <option value="C1">Grid C1</option>
+                                    <option value="C2">Grid C2</option>
+                                    <option value="C3">Grid C3</option>
+                                    <option value="C4">Grid C4</option>
+                                    <option value="D1">Grid D1</option>
+                                    <option value="D2">Grid D2</option>
+                                    <option value="D3">Grid D3</option>
+                                    <option value="D4">Grid D4</option>
+                                </select>
+                            </div>
+                            <canvas id="crowdChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- System Telemetry Status -->
+                    <div class="card telemetry-panel">
+                        <h2>System Telemetry</h2>
+                        <ul class="telemetry-list">
+                            <li><span>Detection Engine:</span> <span id="engine-status" class="status-ok">RUNNING</span></li>
+                            <li><span>Active Cams:</span> <span id="cams-online">2/2</span></li>
+                            <li><span>Avg Latency:</span> <span id="system-latency">100ms</span></li>
+                            <li><span>Model Info:</span> <span>YOLOv8 (~85% Acc)</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-row">
+                <!-- Spatial Risk Analysis -->
+                <div class="card risk-panel">
+                    <h2>Per-Zone Forecast Monitoring</h2>
+                    <div class="risk-grid" id="risk-grid-container">
+                        <!-- Risk items populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Incident Logs -->
+                <div class="card logs-panel">
+                    <h2>Global Incident Log</h2>
+                    <div class="table-container">
+                        <table class="log-table">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Severity</th>
+                                    <th>Event Description</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-tbody">
+                                <!-- Logs populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Hidden audio element for alerts -->
+    <audio id="alert-sound" src="https://www.soundjay.com/buttons/beep-07.mp3" preload="auto"></audio>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

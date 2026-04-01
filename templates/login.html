@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVS-Login | SecureView System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background-color: #050b14;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.1), transparent 50%);
+        }
+        .login-box {
+            background: rgba(10, 20, 35, 0.8);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 12px;
+            padding: 3rem 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(56, 189, 248, 0.05);
+            backdrop-filter: blur(10px);
+        }
+        h2 {
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #0ea5e9;
+            letter-spacing: 2px;
+        }
+        .input-group { margin-bottom: 1.5rem; }
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 0.75rem;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            color: #fff;
+            outline: none;
+            transition: border 0.3s ease;
+        }
+        .input-group input:focus { border-color: #0ea5e9; box-shadow: 0 0 10px rgba(14,165,233,0.3); }
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background: #0ea5e9;
+            color: #050b14;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.1s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .btn-login:hover { background: #38bdf8; box-shadow: 0 0 15px rgba(56,189,248,0.5); }
+        .btn-login:active { transform: scale(0.98); }
+        .error { color: #ef4444; font-size: 0.85rem; text-align: center; margin-top: 1rem; }
+        .system-badge {
+            text-align: center; margin-top: 2rem;
+            font-size: 0.75rem; color: #475569; letter-spacing: 1px; text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2>CENTRAL LOGIN</h2>
+        <form method="POST" action="/login">
+            <div class="input-group">
+                <label for="username">Operator ID</label>
+                <input type="text" id="username" name="username" required autocomplete="off" placeholder="Enter 'admin'">
+            </div>
+            <div class="input-group">
+                <label for="password">Passcode</label>
+                <input type="password" id="password" name="password" required placeholder="Enter 'password'">
+            </div>
+            <button type="submit" class="btn-login">Authenticate</button>
+            {% if error %}
+            <div class="error">{{ error }}</div>
+            {% endif %}
+        </form>
+        <div class="system-badge">SecureView System v2.0</div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Architecture | SecureView System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            background-color: #f8fafc;
+            color: #1e293b;
+            font-family: 'Inter', sans-serif;
+            margin: 0; padding: 2rem;
+            min-height: 100vh;
+        }
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 1rem;
+            margin-bottom: 3rem;
+        }
+        h1 { font-family: 'Orbitron'; color: #0f172a; margin: 0; }
+        .back-btn {
+            color: #fff; background: #0ea5e9;
+            padding: 0.5rem 1rem; text-decoration: none; border-radius: 4px; font-weight: bold;
+            transition: 0.3s;
+        }
+        .back-btn:hover { background: #0284c7; }
+        
+        .diagram-container {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 3rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            display: flex; justify-content: center; overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <h1>SecureView Architecture Flow</h1>
+        <a href="/" class="back-btn">← Back to Dashboard</a>
+    </div>
+    
+    <div class="diagram-container">
+        <div class="mermaid">
+        flowchart LR
+            %% Defining Subgraphs
+            subgraph Data_Sources ["Data Ingestion"]
+                direction TB
+                C1(("<img src='/static/img/arch_camera_1775024655454.png' width='50' style='border-radius:50%; margin-bottom:5px;' /><br/><b>CCTV Feeds</b>"))
+                C2(("<img src='/static/img/arch_camera_1775024655454.png' width='50' style='border-radius:50%; margin-bottom:5px;' /><br/><b>IP Webcams</b>"))
+            end
+            
+            subgraph AI_Engine ["AI Video Processing"]
+                direction TB
+                A1(("<img src='/static/img/arch_ai_1775024674113.png' width='50' style='border-radius:50%; margin-bottom:5px;' /><br/><b>YOLOv8 Tracker</b>"))
+                A2(("<img src='/static/img/arch_ai_1775024674113.png' width='50' style='border-radius:50%; margin-bottom:5px;' /><br/><b>Anomaly Detection</b>"))
+            end
+            
+            subgraph Risk_Analytics ["Predictive Analytics"]
+                P1(("<img src='/static/img/arch_server_1775024693828.png' width='50' style='border-radius:50%; margin-bottom:5px;' /><br/><b>Regional Grid Forecasting</b>"))
+            end
+            
+            subgraph Output ["Control Interface"]
+                direction TB
+                D1(("<img src='/static/img/arch_dashboard_1775024715437.png' width='50' style='border-radius:50%; margin-bottom:5px;' /><br/><b>Web Dashboard</b>"))
+                D2(("<img src='/static/img/arch_dashboard_1775024715437.png' width='50' style='border-radius:50%; margin-bottom:5px;' /><br/><b>Critical Overlays</b>"))
+            end
+
+            %% Links
+            C1 -->|Raw Frames| A1
+            C2 -->|Raw Frames| A1
+            C1 -.->|Background Analysis| A2
+            
+            A1 ==>|Bounding Boxes| P1
+            
+            P1 ==>|Risk Scores & Forecasts| D1
+            A2 -.->|Immediate Alerts| D2
+            P1 -.->|High Threshold| D2
+            
+            %% Styling Nodes Custom
+            classDef default fill:#f1f5f9,stroke:#94a3b8,stroke-width:2px,color:#1e293b,font-family:Inter;
+            classDef subgraphStyle fill:#ffffff,stroke:#cbd5e1,stroke-width:2px,stroke-dasharray: 5 5;
+            
+            class Data_Sources,AI_Engine,Risk_Analytics,Output subgraphStyle;
+        </div>
+    </div>
+    
+    <script>
+        mermaid.initialize({
+            startOnLoad: true, 
+            theme: 'base',
+            securityLevel: 'loose',
+            flowchart: { curve: 'basis' }
+        });
+    </script>
+</body>
+</html>

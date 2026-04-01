@@ -1,0 +1,5 @@
+Flask
+ultralytics
+scikit-learn
+numpy
+pandas
